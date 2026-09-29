@@ -1,0 +1,332 @@
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>CG-5 Admin</title>
+<link rel="stylesheet" href="dashboard.css">
+<style>
+.admin-page .welcome-section{min-height:300px;padding:50px 8%}.admin-page .welcome-section h1{font-size:42px;margin-bottom:14px}.admin-page .welcome-section p{margin-bottom:0}
+.admin-tabs-section{max-width:1180px;margin:auto;padding:35px 35px 0}.admin-tabs{display:flex;gap:4px;border-bottom:1px solid #d7e2e7;margin-bottom:35px;overflow-x:auto}.admin-tab{flex-shrink:0;border:0;background:0;padding:13px 20px;color:#61727c;font:600 14px inherit;cursor:pointer;border-bottom:3px solid transparent;white-space:nowrap}.admin-tab:hover,.admin-tab.active{color:#003B5C}.admin-tab.active{border-bottom-color:#005B82}.admin-tab-panel{display:none}.admin-tab-panel.active{display:block}
+.admin-panel-header{display:flex;justify-content:space-between;align-items:flex-start;gap:20px;margin-bottom:22px}.admin-panel-header h2,.panel-header h2{margin:5px 0 7px;color:#12313f}.admin-panel-header p{margin:0;color:#71818a;font-size:14px}
+.admin-primary-btn,.primary-button{border:1px solid #005B82;border-radius:8px;padding:11px 16px;background:#005B82;color:#fff;font:700 13px inherit;cursor:pointer;white-space:nowrap}.admin-primary-btn:hover,.primary-button:hover{background:#003B5C}.secondary-button{border:1px solid #cbd9df;border-radius:7px;padding:10px 15px;background:#fff;color:#005B82;font:700 12px inherit;cursor:pointer}.secondary-button:hover{background:#f4f8fa}
+.admin-table-wrapper{width:100%;overflow-x:auto;background:#fff;border:1px solid #dce6ea;border-radius:10px}.admin-table{width:100%;border-collapse:collapse;min-width:700px}.admin-table th{padding:13px 15px;text-align:left;background:#f4f8fa;color:#526771;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.03em;border-bottom:1px solid #dce6ea}.admin-table td{padding:14px 15px;color:#344b56;font-size:14px;border-bottom:1px solid #edf1f3}.admin-table tbody tr:last-child td{border:0}.status-badge.available{display:inline-flex;padding:5px 9px;border-radius:20px;background:#e8f5ed;color:#28734a;font-size:12px;font-weight:700}.table-action-btn{border:1px solid #cbd9df;background:#fff;color:#005B82;border-radius:6px;padding:6px 11px;font:700 12px inherit;cursor:pointer}
+.duty-calendar-panel{width:100%}.duty-calendar-tools{display:flex;align-items:center;margin-bottom:18px}.duty-calendar-search{width:min(100%,360px);height:38px;display:flex;align-items:center;gap:8px;padding:0 12px;border:1px solid #d3e1d6;border-radius:7px;background:#fff}.duty-calendar-search span{color:#005B82;font-size:18px}.duty-calendar-search input{width:100%;border:0;outline:0;background:transparent;color:#24352b}
+.duty-calendar-heading{display:flex;justify-content:center;align-items:center;gap:14px;margin-bottom:18px}.duty-calendar-heading h3{min-width:170px;margin:0;text-align:center;color:#102a43;font-size:17px}.duty-calendar-heading button{width:32px;height:32px;padding:0;border:1px solid #d8e4ea;border-radius:7px;background:#fff;color:#005B82;font-size:20px;cursor:pointer}.duty-calendar-heading button:disabled{opacity:.4;cursor:not-allowed}
+.duty-calendar-layout{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:20px;align-items:start}.duty-calendar-grid{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));border-top:1px solid #d8e4ea;border-left:1px solid #d8e4ea;background:#fff}.duty-calendar-grid .calendar-weekday{min-height:34px;display:flex;align-items:center;justify-content:center;background:#f4f8fa;border-right:1px solid #d8e4ea;border-bottom:1px solid #d8e4ea;color:#005B82;font-size:9px;font-weight:800}.duty-calendar-grid .calendar-day{min-height:86px;padding:6px 7px;border-right:1px solid #d8e4ea;border-bottom:1px solid #d8e4ea;background:#fff;cursor:pointer}.duty-calendar-grid .calendar-day:hover{background:#fafcfc}.duty-calendar-grid .calendar-day.other-month{background:#fafcfa}.duty-calendar-grid .calendar-day.today{box-shadow:inset 0 0 0 1.5px #005B82}.duty-calendar-grid .calendar-day.selected{box-shadow:inset 0 0 0 1.5px #d6b25e}.duty-calendar-grid .day-number{display:block;margin-bottom:4px;color:#24352b;font-size:10px;font-weight:800}.duty-calendar-grid .duty-entry{margin-top:3px;padding:2px 3px;color:#24352b;font-size:8px;font-weight:600;line-height:1.35;overflow:hidden}.duty-calendar-grid .duty-label{color:#68756d;font-weight:800}.duty-calendar-grid .duty-person{color:#24352b}
+.duty-calendar-side{display:flex;flex-direction:column;gap:18px}.duty-details,.cg5-ai-assistant{padding:20px;border:1px solid #e1e7eb;border-radius:11px;background:#fff;box-shadow:0 5px 18px rgba(16,42,67,.04)}.details-header,.ai-header{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;padding-bottom:14px;border-bottom:1px solid #e1e8e3}.details-header h3,.ai-header h3{margin:5px 0 0;color:#102a43;font-size:18px}.status-badge,.ai-status{padding:5px 8px;border-radius:5px;background:#eaf4f8;color:#005B82;font-size:10px;font-weight:800}.duty-details-content{padding:17px 0}.empty-details{color:#7b8780;font-size:13px;line-height:1.6}.detail-date{margin:0 0 16px;color:#005B82;font-size:15px;font-weight:800}.detail-block{margin-bottom:16px}.detail-label{margin:0 0 4px;color:#7a877f;font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:.05em}.detail-value{margin:0;color:#1d3025;font-size:14px;font-weight:700;line-height:1.45}
+.ai-status{font-size:9px}.ai-chat{display:flex;flex-direction:column;gap:10px;padding:15px 0;max-height:300px;overflow-y:auto}.ai-message{max-width:92%;padding:9px 11px;border-radius:9px;font-size:11px;line-height:1.5}.ai-message p{margin:0 0 7px}.ai-message p:last-child{margin:0}.ai-message.assistant{align-self:flex-start;background:#f4f8fa;color:#24352b;border:1px solid #e1e8e3}.ai-message.user{align-self:flex-end;background:#005B82;color:#fff}.ai-input-area{display:flex;align-items:center;gap:7px;padding-top:12px;border-top:1px solid #e1e8e3}.ai-input-area input{width:100%;height:36px;padding:0 10px;border:1px solid #d3e1d6;border-radius:7px;outline:0;font-size:11px}.ai-input-area button{width:36px;height:36px;border:1px solid #005B82;border-radius:7px;background:#005B82;color:#fff;cursor:pointer}
+.exemptions-panel,.personnel-panel{margin-top:20px}.swap-information{display:flex;flex-direction:column;gap:7px;margin-bottom:14px}.swap-note{padding:10px 12px;border-radius:7px;background:#f4f8fa;color:#56655c;font-size:11px;line-height:1.5}.exemption-table-wrapper,.personnel-table-wrapper{width:100%;overflow-x:auto}.exemption-table,.personnel-table{width:100%;border-collapse:collapse}.exemption-table th,.exemption-table td,.personnel-table th,.personnel-table td{padding:11px 13px;border-bottom:1px solid #d8e4ea;text-align:left;vertical-align:middle}.exemption-table th,.personnel-table th{background:#f4f8fa;color:#526771;font-size:11px;font-weight:700;text-transform:uppercase;white-space:nowrap}.exemption-table td,.personnel-table td{color:#344b56;font-size:12px}.exemption-decision{display:inline-flex;padding:5px 8px;border-radius:5px;background:#eaf4f8;color:#005B82;font-size:10px;font-weight:700}
+.personnel-form{margin-bottom:24px;padding:20px;border:1px solid #d8e4ea;border-radius:11px;background:#f7faf8}.personnel-form.hidden{display:none}.form-row{display:grid;grid-template-columns:.8fr 2fr;gap:16px;margin-bottom:16px}.form-group{display:flex;flex-direction:column;gap:7px}.form-group label{color:#315344;font-size:13px;font-weight:700}.form-group input,.form-group select,.form-group textarea{width:100%;min-height:38px;padding:7px 10px;border:1px solid #d3e1d6;border-radius:7px;outline:0;background:#fff;color:#1c3022;box-sizing:border-box}.form-group textarea{min-height:82px;resize:vertical}.form-group input[readonly]{background:#f4f8fa;color:#526771}.form-actions{display:flex;gap:10px;margin-top:18px}.form-status{min-height:18px;margin:12px 0 0;color:#315344;font-size:12px;font-weight:700}.personnel-actions{display:flex;align-items:center;gap:6px;flex-wrap:wrap}.personnel-edit,.personnel-delete{display:inline-flex;align-items:center;justify-content:center;min-height:30px;padding:5px 9px;border-radius:6px;background:#fff;cursor:pointer;font-size:11px;font-weight:700}.personnel-edit{border:1px solid #cbd9df;color:#005B82}.personnel-delete{border:1px solid #efd0cc;color:#c0392b}
+.modal{position:fixed;inset:0;z-index:2000;display:flex;align-items:center;justify-content:center;padding:20px}.modal.hidden{display:none}.modal-backdrop{position:absolute;inset:0;background:rgba(7,29,50,.45)}.modal-card,.modal-content{position:relative;z-index:1;width:min(100%,480px);background:#fff;border:1px solid #dfe7e2;border-radius:11px;box-shadow:0 20px 50px rgba(16,42,67,.15);overflow:hidden}.modal-header{display:flex;justify-content:space-between;align-items:flex-start;gap:15px;padding:20px;border-bottom:1px solid #e1e8e3}.modal-header h3{margin:5px 0 0;color:#102a43}.modal-close,#close-special-duty{width:30px;height:30px;border:0;background:transparent;color:#68756d;font-size:24px;cursor:pointer}.modal-body{padding:20px}.modal-body .form-group{margin-bottom:16px}.modal-actions,.modal-footer{display:flex;justify-content:flex-end;gap:10px;padding:16px 20px;margin:0;border-top:1px solid #e1e8e3;background:#fafcfb}.modal-footer button{border-radius:7px;padding:10px 15px;font:700 12px inherit;cursor:pointer}#cancel-special-duty{border:1px solid #cbd9df;background:#fff;color:#005B82}#save-special-duty{border:1px solid #005B82;background:#005B82;color:#fff}#save-special-duty:hover{background:#003B5C}.special-duty-existing{margin-top:18px;padding-top:15px;border-top:1px solid #e1e8e3}.special-duty-existing-title{margin-bottom:10px;color:#102a43;font-size:12px;font-weight:800;text-transform:uppercase}.special-duty-existing>p{margin:0;color:#7b8780;font-size:12px}.special-duty-existing-item{display:flex;justify-content:space-between;align-items:center;gap:15px;padding:10px 0;border-bottom:1px solid #edf1f3;color:#344b56;font-size:12px;line-height:1.5}.special-duty-existing-item strong{color:#005B82}.special-duty-existing-item small{color:#7a877f}
+@media(max-width:1000px){.duty-calendar-layout{grid-template-columns:1fr}}
+@media(max-width:700px){.admin-page .welcome-section{min-height:260px;padding:45px 25px}.admin-page .welcome-section h1{font-size:34px}.admin-tabs-section{padding:30px 20px 0}.admin-panel-header{flex-direction:column}.admin-primary-btn{width:100%}.duty-calendar-heading h3{min-width:130px;font-size:14px}.duty-calendar-grid .calendar-day{min-height:75px;padding:4px}.duty-calendar-grid .duty-entry{font-size:7px}.form-row{grid-template-columns:1fr}.exemption-table,.personnel-table{min-width:650px}.modal{padding:10px}.modal-card,.modal-content{width:100%;max-height:90vh;overflow-y:auto}}
+@media(max-width:400px){.duty-calendar-grid .calendar-weekday{font-size:8px}.duty-calendar-grid .calendar-day{min-height:68px;padding:3px}.duty-calendar-grid .day-number{font-size:10px}.duty-calendar-grid .duty-entry{font-size:6.5px}}
+</style>
+</head>
+
+<body>
+
+<aside class="sidebar">
+<div class="sidebar-brand">
+<div class="brand-logo">CG-5</div>
+<div class="brand-text"><strong>PHILIPPINE</strong><strong>COAST GUARD</strong><span>INTERNATIONAL AFFAIRS</span></div>
+</div>
+
+<nav class="sidebar-nav">
+<a href="dashboard.html" class="nav-item"><span class="nav-icon">⌂</span><span>Home</span></a>
+<a href="admin.html" class="nav-item active"><span class="nav-icon">▣</span><span>Admin</span></a>
+<a href="duty-calendar.html" class="nav-item"><span class="nav-icon">▦</span><span>Calendar</span></a>
+</nav>
+
+<div class="sidebar-bottom">
+<button id="logoutBtn" class="logout-btn" type="button"><span class="nav-icon">↪</span><span>Logout</span></button>
+</div>
+</aside>
+
+<main class="main-content admin-page">
+<section class="page-section">
+
+<div class="welcome-section">
+<div class="welcome-content">
+<span class="section-label">CG-5 ADMINISTRATION</span>
+<h1>Admin <span>Panel</span></h1>
+<p>Manage personnel status, tasks, leave monitoring, and duty calendar for the CG-5 International Affairs Portal.</p>
+</div>
+</div>
+
+<div class="admin-tabs-section">
+
+<div class="admin-tabs" role="tablist">
+<button type="button" class="admin-tab active" data-tab="personnel" role="tab" aria-selected="true">Personnel Status</button>
+<button type="button" class="admin-tab" data-tab="tasks" role="tab" aria-selected="false">Task</button>
+<button type="button" class="admin-tab" data-tab="leave" role="tab" aria-selected="false">Leave Monitoring</button>
+<button type="button" class="admin-tab" data-tab="duty-calendar" role="tab" aria-selected="false">Duty Calendar</button>
+</div>
+
+<div id="personnel" class="admin-tab-panel active" role="tabpanel">
+<div class="admin-panel-header">
+<div><span class="section-label">PERSONNEL</span><h2>Personnel Status</h2><p>Monitor the current status and availability of CG-5 personnel.</p></div>
+<button type="button" class="admin-primary-btn">+ Add Personnel</button>
+</div>
+<div class="admin-table-wrapper">
+<table class="admin-table">
+<thead><tr><th>Personnel</th><th>Designation</th><th>Status</th><th>Remarks</th><th>Action</th></tr></thead>
+<tbody>
+<tr><td><strong>Sample Personnel</strong></td><td>CG-5</td><td><span class="status-badge available">Available</span></td><td>-</td><td><button type="button" class="table-action-btn">Edit</button></td></tr>
+</tbody>
+</table>
+</div>
+</div>
+
+<div id="tasks" class="admin-tab-panel" role="tabpanel">
+<div class="admin-panel-header">
+<div><span class="section-label">TASK MANAGEMENT</span><h2>Task</h2><p>Monitor assigned tasks and deadlines.</p></div>
+</div>
+</div>
+
+<div id="leave" class="admin-tab-panel" role="tabpanel">
+<div class="admin-panel-header">
+<div><span class="section-label">PERSONNEL MANAGEMENT</span><h2>Leave Monitoring</h2><p>Monitor personnel leave schedules and status.</p></div>
+</div>
+</div>
+
+<div id="duty-calendar-panel" class="admin-tab-panel" role="tabpanel">
+
+<div class="duty-calendar-panel">
+
+<div class="admin-panel-header">
+<div><span class="section-label">DUTY MANAGEMENT</span><h2>Duty Calendar</h2><p>Manage duty assignments, exemptions, personnel, and duty schedules.</p></div>
+</div>
+
+<div class="duty-calendar-tools">
+<div class="duty-calendar-search"><span>⌕</span><input id="duty-search" type="text" placeholder="Search duty..."></div>
+</div>
+
+<div class="duty-calendar-heading">
+<button id="previous-month" type="button">‹</button>
+<h3 id="calendar-month">September 2026</h3>
+<button id="next-month" type="button">›</button>
+</div>
+
+<div class="duty-calendar-layout">
+
+<div>
+<div id="duty-calendar" class="duty-calendar-grid"></div>
+</div>
+
+<div class="duty-calendar-side">
+
+<section id="duty-details" class="duty-details">
+<div class="details-header">
+<div><span class="section-label">DETAILS</span><h3>Duty Details</h3></div>
+<span id="duty-status" class="status-badge">Select</span>
+</div>
+<div id="duty-details-content" class="duty-details-content">
+<p class="empty-details">Select a duty from the calendar to view its details.</p>
+</div>
+</section>
+
+<section id="cg5-ai-assistant" class="cg5-ai-assistant">
+<div class="ai-header">
+<div><span class="section-label">CG-5</span><h3>AI Assistant</h3></div>
+<span class="ai-status">ONLINE</span>
+</div>
+<div id="ai-chat" class="ai-chat"></div>
+<div class="ai-input-area">
+<input id="ai-input" type="text" placeholder="Ask CG-5 Assistant...">
+<button id="ai-send" type="button">➤</button>
+</div>
+</section>
+
+</div>
+</div>
+
+<section class="panel exemptions-panel">
+<span class="section-label">DUTY EXEMPTIONS</span>
+<h2>Exemptions</h2>
+<div id="swap-information" class="swap-information"></div>
+<div class="exemption-table-wrapper">
+<table class="exemption-table">
+<thead><tr><th>Personnel</th><th>Reason</th><th>Start</th><th>End</th><th>Decision</th><th>Action</th></tr></thead>
+<tbody id="exemption-list"></tbody>
+</table>
+</div>
+</section>
+
+<section class="panel personnel-panel">
+
+<div class="panel-header">
+<div><span class="section-label">PERSONNEL</span><h2>Duty Management</h2></div>
+<button id="add-personnel-btn" type="button" class="primary-button">+ Add Personnel</button>
+</div>
+
+<form id="personnel-form" class="personnel-form hidden">
+
+<div class="form-row">
+<div class="form-group"><label for="personnel-serial">Serial</label><input id="personnel-serial" type="text"></div>
+<div class="form-group"><label for="personnel-name">Name</label><input id="personnel-name" type="text"></div>
+</div>
+
+<div class="form-row">
+<div class="form-group">
+<label for="personnel-duty">Duty</label>
+<select id="personnel-duty">
+<option value="">Select Duty</option>
+<option value="Duty OOD">Duty OOD</option>
+<option value="Duty POW">Duty POW</option>
+<option value="Duty Officewatch">Duty Officewatch</option>
+<option value="Duty Operation">Duty Operation</option>
+<option value="Duty Liaison">Duty Liaison</option>
+<option value="Duty Officewatch/Operation">Duty Officewatch/Operation</option>
+<option value="Duty Officewatch/Operation/Liaison">Duty Officewatch/Operation/Liaison</option>
+</select>
+</div>
+
+<div class="form-group">
+<label for="personnel-desk">Desk</label>
+<select id="personnel-desk">
+<option value="">Select Desk</option>
+<option>Admin</option>
+<option>Logistics</option>
+<option>D1</option>
+<option>D2</option>
+<option>D3</option>
+<option>D4</option>
+<option>D5</option>
+<option>PCC</option>
+</select>
+</div>
+</div>
+
+<div class="form-actions">
+<button id="save-personnel-btn" type="submit" class="primary-button">Save Personnel</button>
+<button id="cancel-personnel" type="button" class="secondary-button">Cancel</button>
+</div>
+
+<p id="personnel-status" class="form-status"></p>
+</form>
+
+<div class="personnel-table-wrapper">
+<table class="personnel-table">
+<thead><tr><th>Serial</th><th>Name</th><th>Duty</th><th>Desk</th><th>Action</th></tr></thead>
+<tbody id="personnel-list"></tbody>
+</table>
+</div>
+
+</section>
+
+</div>
+</div>
+</div>
+
+</div>
+</section>
+
+<footer class="footer">
+<div><strong>PHILIPPINE COAST GUARD</strong><span>Office of International Affairs — CG-5</span></div>
+<div>CG-5 Internal Portal</div>
+</footer>
+
+</main>
+
+<div id="exemption-modal" class="modal hidden">
+
+<div class="modal-backdrop" id="close-exemption"></div>
+
+<div class="modal-card">
+
+<div class="modal-header">
+<div><span class="section-label">DUTY EXEMPTION</span><h3>Exemption Request</h3></div>
+<button type="button" class="modal-close">×</button>
+</div>
+
+<div class="modal-body">
+
+<div class="form-group">
+<label for="exemption-personnel">Personnel</label>
+<input id="exemption-personnel" type="text" readonly>
+</div>
+
+<div class="form-group">
+<label for="exemption-reason">Reason</label>
+<textarea id="exemption-reason"></textarea>
+</div>
+
+<div class="form-row">
+<div class="form-group"><label for="exemption-start">Start</label><input id="exemption-start" type="date"></div>
+<div class="form-group"><label for="exemption-end">End</label><input id="exemption-end" type="date"></div>
+</div>
+
+<div class="form-group">
+<label for="exemption-decision">Decision</label>
+<select id="exemption-decision">
+<option>Next in line</option>
+</select>
+</div>
+
+<p id="exemption-status" class="form-status"></p>
+
+</div>
+
+<div class="modal-actions">
+<button id="save-exemption" type="button" class="primary-button">Save</button>
+<button id="cancel-exemption" type="button" class="secondary-button">Cancel</button>
+</div>
+
+</div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="duty-calendar.js"></script>
+<script src="ai-assistant.js"></script>
+
+<script>
+const adminTabs=document.querySelectorAll(".admin-tab"),adminPanels=document.querySelectorAll(".admin-tab-panel");
+
+function activateAdminTab(target){
+    adminTabs.forEach(t=>{
+        const active=t.dataset.tab===target;
+        t.classList.toggle("active",active);
+        t.setAttribute("aria-selected",active);
+    });
+
+    adminPanels.forEach(p=>{
+        p.classList.toggle("active",p.id===target||(p.id==="duty-calendar-panel"&&target==="duty-calendar"));
+    });
+}
+
+adminTabs.forEach(t=>t.addEventListener("click",()=>{
+    const target=t.dataset.tab;
+    activateAdminTab(target);
+    history.replaceState(null,"",target==="duty-calendar"?"#duty-calendar":location.pathname);
+}));
+
+if(location.hash==="#duty-calendar")activateAdminTab("duty-calendar");
+
+const adminSupabaseClient=window.supabase.createClient(
+    "https://qxiufjlserfxgblftieb.supabase.co",
+    "sb_publishable_H0hMUqF1YM5rUT9cdLAqJA_qiQfNznA"
+);
+
+const logoutBtn=document.getElementById("logoutBtn");
+
+if(logoutBtn){
+    logoutBtn.addEventListener("click",async()=>{
+        try{
+            const{error}=await adminSupabaseClient.auth.signOut();
+            if(error){
+                console.error("Logout error:",error);
+                return;
+            }
+            location.href="index.html";
+        }catch(error){
+            console.error("Logout error:",error);
+        }
+    });
+}
+</script>
+
+</body>
+</html> 
