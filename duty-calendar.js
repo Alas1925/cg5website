@@ -1042,6 +1042,49 @@ function assignFromBCGroup(
     return null;
 }
 
+function getWeekendLiaisonSelection(duty){
+    return dutySelectionAllowsDuty(duty,DUTY_TYPES.OFFICEWATCH)||
+        dutySelectionAllowsDuty(duty,DUTY_TYPES.OPERATION)||
+        dutySelectionAllowsDuty(duty,DUTY_TYPES.LIAISON);
+}
+
+function isBGroupSerial(serial){
+    const n=getNumericSerial(serial);
+
+    if(n===null||getOodSerial(serial)!==null)
+        return false;
+
+    return numberInRange(n,OW_OPS_START,OW_OPS_END);
+}
+
+function getWeekendLiaisonPool(date){
+    return sortPersonnel(
+        personnel.filter(p=>{
+            if(!personnelActiveOnDate(p,date))
+                return false;
+
+            if(!isBGroupSerial(p.serial_number))
+                return false;
+
+            return getWeekendLiaisonSelection(p.duty);
+        })
+    );
+}
+
+function getGeneratorWeekendLiaisonPool(date){
+    return sortPersonnel(
+        personnel.filter(person=>{
+            if(!personnelActiveOnDate(person,date))
+                return false;
+
+            if(!isBGroupSerial(person.serial_number))
+                return false;
+
+            return getWeekendLiaisonSelection(person.duty);
+        })
+    );
+}
+
 function assignWeekendBC(
     date,
     usedIds,
@@ -1098,9 +1141,10 @@ function assignWeekendBC(
         }
     }
 
-    let group=weekendBCNextGroup;
+    // Weekend OW/Operation is handled by Group C only.
+    const group="C";
 
-    let result=
+    const result=
         assignFromBCGroup(
             DUTY_TYPES.OFFICEWATCH,
             date,
@@ -1110,33 +1154,139 @@ function assignWeekendBC(
             messages
         );
 
-    if(!result){
-        const fallbackGroup=
-            group==="B"?"C":"B";
-
-        messages.push(
-            `OW/Operation: No available ${group} personnel; checking ${fallbackGroup} group.`
-        );
-
-        group=fallbackGroup;
-
-        result=
-            assignFromBCGroup(
-                DUTY_TYPES.OFFICEWATCH,
-                date,
-                group,
-                usedIds,
-                usedDesks,
-                messages
-            );
-    }
-
     if(result){
-        weekendBCNextGroup=
-            group==="B"?"C":"B";
+        weekendBCNextGroup="B";
     }
 
     return result;
+}
+
+function assignWeekendLiaison(
+    date,
+    usedIds,
+    usedDesks,
+    messages
+){
+    const special=getSpecialDuty(
+        DUTY_TYPES.LIAISON,
+        date
+    );
+
+    if(
+        special&&
+        specialDutyCanAppearOnDate(DUTY_TYPES.LIAISON,date)
+    ){
+        const forced=personnel.find(
+            p=>Number(p.id)===
+                Number(special.personnel_id)
+        );
+
+        if(
+            forced&&
+            personnelActiveOnDate(forced,date)
+        ){
+            const exemption=
+                getPersonnelExemption(
+                    forced.id,
+                    date
+                );
+
+            if(exemption){
+                messages.push(
+                    `Liaison: Special Duty for ${forced.full_name_rank} could not be assigned because of an Exemption.`
+                );
+            }else{
+                usedIds.add(
+                    Number(forced.id)
+                );
+
+                messages.push(
+                    `Liaison: ${forced.full_name_rank} assigned as SPECIAL DUTY.`
+                );
+
+                return{
+                    person:forced,
+                    specialDuty:true,
+                    specialDutyId:special.id
+                };
+            }
+        }
+    }
+
+    // Weekend Liaison is handled by Group B only.
+    const pool=getWeekendLiaisonPool(date);
+
+    if(!pool.length)
+        return null;
+
+    const last=
+        rotationState["LIAISON_WEEKEND"]??null;
+
+    let startIndex=-1;
+
+    if(last!==null){
+        startIndex=pool.findIndex(
+            p=>Number(p.id)===Number(last)
+        );
+    }
+
+    const skipped=[];
+    const specialToday=
+        getSpecialPersonnelIdsOnDate(date);
+
+    for(
+        let step=1;
+        step<=pool.length;
+        step++
+    ){
+        const index=
+            (startIndex+step)%pool.length;
+
+        const person=pool[index];
+
+        if(
+            !person||
+            specialToday.has(Number(person.id))||
+            usedIds.has(Number(person.id))
+        )
+            continue;
+
+        const exemption=
+            getPersonnelExemption(
+                person.id,
+                date
+            );
+
+        if(exemption){
+            skipped.push({
+                person,
+                type:"exemption",
+                reason:exemption.reason
+            });
+
+            continue;
+        }
+
+        usedIds.add(
+            Number(person.id)
+        );
+
+        rotationState["LIAISON_WEEKEND"]=
+            person.id;
+
+        skipped.forEach(x=>{
+            messages.push(
+                `Liaison: ${x.person.full_name_rank} exempted (${x.reason}) \u2192 next in line: ${person.full_name_rank}.`
+            );
+        });
+
+        return{
+            person,
+            specialDuty:false
+        };
+    }
+
+    return null;
 }
 
 function buildRoster(){
@@ -1343,8 +1493,7 @@ function buildRoster(){
                 }
 
                 const liaison=
-                    assignFromPool(
-                        DUTY_TYPES.LIAISON,
+                    assignWeekendLiaison(
                         date,
                         usedIds,
                         usedDesks,
@@ -1433,8 +1582,7 @@ function buildRoster(){
                     }
 
                     const liaison=
-                        assignFromPool(
-                            DUTY_TYPES.LIAISON,
+                        assignWeekendLiaison(
                             date,
                             usedIds,
                             usedDesks,
@@ -2737,16 +2885,15 @@ function populateDutyGeneratorPersonnel(){
         getGeneratorPool(
             DUTY_TYPES.OFFICEWATCH,
             startDate
+        ).filter(
+            person=>getBCGroup(person)==="C"
         ),
         oldValues["generator-weekend-ow"]
     );
 
     fillGeneratorSelect(
         "generator-weekend-liaison",
-        getGeneratorPool(
-            DUTY_TYPES.LIAISON,
-            startDate
-        ),
+        getGeneratorWeekendLiaisonPool(startDate),
         oldValues["generator-weekend-liaison"]
     );
 }
@@ -2933,6 +3080,9 @@ function generateDutyRotation(){
             DUTY_TYPES.LIAISON,
             startDate
         ),
+        weekendLiaison:getGeneratorWeekendLiaisonPool(
+            startDate
+        ),
         ood:getGeneratorPool(
             DUTY_TYPES.OOD,
             startDate
@@ -3032,18 +3182,17 @@ function generateDutyRotation(){
     bcCurrent[BC_PATTERN[startRow].operation]=
         starts.operation;
 
-    // Weekend OW/Operation alternates between Group B and Group C.
+    // Weekend OW/Operation uses Group C only.
     const weekendStart=
         starts.weekendOW||
         starts.officewatch;
 
-    let weekendGroup=
-        getBCGroup(weekendStart)==="C"?"C":"B";
+    let weekendGroup="C";
 
     const weekendCurrent={B:null,C:null};
 
-    if(getBCGroup(weekendStart)===weekendGroup)
-        weekendCurrent[weekendGroup]=weekendStart;
+    if(getBCGroup(weekendStart)==="C")
+        weekendCurrent.C=weekendStart;
 
     const pickFromGroup=(
         pool,
@@ -3245,20 +3394,6 @@ function generateDutyRotation(){
                         new Map()
                     );
 
-                if(!weekendOW){
-                    usedGroup=
-                        weekendGroup==="B"?"C":"B";
-
-                    weekendOW=
-                        pickFromGroup(
-                            pools.officewatch,
-                            usedGroup,
-                            weekendCurrent,
-                            weekendUsed,
-                            new Map()
-                        );
-                }
-
                 if(weekendOW){
                     weekendUsed.add(
                         Number(weekendOW.id)
@@ -3271,14 +3406,11 @@ function generateDutyRotation(){
                         personnel_id:weekendOW.id,
                         person:weekendOW
                     });
-
-                    weekendGroup=
-                        usedGroup==="B"?"C":"B";
                 }
 
                 const weekendLiaison=
                     getNextGeneratorPersonAvailable(
-                        pools.liaison,
+                        pools.weekendLiaison,
                         weekendLiaisonCurrent,
                         weekendUsed,
                         new Map()
@@ -3286,7 +3418,7 @@ function generateDutyRotation(){
 
                 weekendLiaisonCurrent=
                     nextFrom(
-                        pools.liaison,
+                        pools.weekendLiaison,
                         weekendLiaison||weekendLiaisonCurrent
                     );
 
@@ -4864,26 +4996,6 @@ async function initializeDutyCalendar(){
         );
     }
 }
-
-window.cg5DutyAI={
-    getRoster:()=>JSON.parse(
-        JSON.stringify(roster)
-    ),
-
-    getPersonnel:()=>JSON.parse(
-        JSON.stringify(personnel)
-    ),
-
-    getSelectedDate:()=>selectedDate,
-
-    getSpecialDuties:()=>JSON.parse(
-        JSON.stringify(specialDuties)
-    ),
-
-    getExemptions:()=>JSON.parse(
-        JSON.stringify(exemptions)
-    )
-};
 
 window.cg5DutyRotation={
     getAppliedConfig:()=>JSON.parse(
